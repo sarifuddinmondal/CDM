@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMD - Supabase Code Manager</title>
+    <style>
+        :root { --bg: #1e1e1e; --sidebar-bg: #252526; --header-bg: #333; --accent: #3ecf8e; --text: #d4d4d4; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; background: var(--bg); color: var(--text); overflow: hidden; }
+        header { background: var(--header-bg); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; }
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+        #sidebar { width: 280px; background: var(--sidebar-bg); border-right: 1px solid #444; display: flex; flex-direction: column; }
+        #file-list { flex: 1; overflow-y: auto; padding: 10px; list-style: none; margin: 0; }
+        .file-item { padding: 8px 12px; cursor: pointer; font-size: 13px; color: #ccc; border-radius: 4px; }
+        .file-item:hover { background: #2a2d2e; }
+        .active-file { background: #064e3b !important; color: white; border-left: 3px solid var(--accent); }
+        #editor-container { flex: 1; display: flex; flex-direction: column; }
+        textarea { flex: 1; background: var(--bg); color: #9cdcfe; border: none; padding: 20px; font-family: 'Consolas', monospace; font-size: 16px; outline: none; resize: none; line-height: 1.5; }
+        .btn { background: var(--accent); color: #111; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; font-size: 13px; font-weight: bold; }
+        .btn:hover { background: #34b27b; }
+        input[type="file"] { display: none; }
+        .status { font-size: 12px; color: var(--accent); display: none; margin-right: 15px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div><strong>CMD</strong> | Supabase Manager</div>
+    <div style="display: flex; align-items: center;">
+        <span id="save-status" class="status">Saved to Supabase!</span>
+        <label for="folder-upload" class="btn" style="background: #444; color: white; margin-right: 10px;">📁 Open Folder</label>
+        <input type="file" id="folder-upload" webkitdirectory directory multiple />
+        <button class="btn" id="save-btn">☁️ Save (Ctrl+S)</button>
+    </div>
+</header>
+
+<div class="main-container">
+    <div id="sidebar">
+        <ul id="file-list"><li style="color: #666; padding: 15px;">No folder selected.</li></ul>
+    </div>
+    <div id="editor-container">
+        <textarea id="code-editor" spellcheck="false" placeholder="// Select a file to start editing..."></textarea>
+    </div>
+</div>
+
+<script type="module">
+    import { supabase } from './config.js';
+
+    const folderInput = document.getElementById('folder-upload');
+    const fileListDisplay = document.getElementById('file-list');
+    const editor = document.getElementById('code-editor');
+    const saveBtn = document.getElementById('save-btn');
+    const saveStatus = document.getElementById('save-status');
+
+    let activeFilePath = null;
+
+    folderInput.addEventListener('change', (e) => {
+        const files = e.target.files;
+        if (files.length === 0) return;
+        fileListDisplay.innerHTML = '';
+
+        Array.from(files).forEach(file => {
+            const path = file.webkitRelativePath;
+            const li = document.createElement('li');
+            li.className = 'file-item';
+            li.textContent = path;
+            li.onclick = () => {
+                document.querySelectorAll('.file-item').forEach(el => el.classList.remove('active-file'));
+                li.classList.add('active-file');
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    editor.value = ev.target.result;
+                    activeFilePath = path;
+                };
+                reader.readAsText(file);
+            };
+            fileListDisplay.appendChild(li);
+        });
+    });
+
+    async function saveFile() {
+        if (!activeFilePath) return alert("Select a file first!");
+
+        try {
+            saveBtn.textContent = "Saving...";
+            
+            // Supabase Storage এ আপলোড (বাকেট নাম: 'CMD_Projects')
+            const { data, error } = await supabase.storage
+                .from('CMD_Projects')
+                .upload(activeFilePath, editor.value, {
+                    cacheControl: '3600',
+                    upsert: true
+                });
+
+            if (error) throw error;
+
+            saveStatus.style.display = 'inline';
+            setTimeout(() => { saveStatus.style.display = 'none'; }, 3000);
+        } catch (err) {
+            console.error(err);
+            alert("Error: " + err.message + "\nনিশ্চিত করুন Supabase এ 'CMD_Projects' বাকেটটি তৈরি করেছেন।");
+        } finally {
+            saveBtn.textContent = "☁️ Save (Ctrl+S)";
+        }
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            saveFile();
+        }
+    });
+
+    saveBtn.onclick = saveFile;
+</script>
+</body>
+</html>
