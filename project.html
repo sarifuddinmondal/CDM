@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects - Sarifuddin Mondal</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #3ecf8e;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        p.subtitle {
+            color: var(--text-dim);
+            margin-bottom: 40px;
+        }
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+        }
+        .project-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            transition: transform 0.3s ease;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+        .project-name {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .project-desc {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-bottom: 20px;
+            height: 40px;
+        }
+        .btn-link {
+            display: inline-block;
+            background: var(--accent);
+            color: #111;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .btn-link:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>আমার প্রজেক্ট লিস্ট</h1>
+    <p class="subtitle">Sarifuddin Mondal এর সকল প্রজেক্টের তালিকা</p>
+
+    <div class="project-grid">
+        
+        <div class="project-card">
+            <span class="project-name">CDM - Code Data Manager</span>
+            <p class="project-desc">লোকাল ফোল্ডার ম্যানেজমেন্ট এবং সুপাবেস ক্লাউড সিঙ্ক এডিটর।</p>
+            <a href="https://sarifuddinmondal.github.io/CDM/" target="_blank" class="btn-link">লাইভ লিঙ্ক দেখুন</a>
+        </div>
+
+        <div class="project-card">
+            <span class="project-name">Ckart</span>
+            <p class="project-desc">আপনার তৈরি করা ই-কমার্স বা ওয়েবসাইট প্রজেক্ট।</p>
+            <a href="https://ckart-5b2d9.web.app" target="_blank" class="btn-link" style="background: #38bdf8;">লাইভ লিঙ্ক দেখুন</a>
+        </div>
+
+        <div class="project-card" style="border-style: dashed; opacity: 0.6;">
+            <span class="project-name">নতুন প্রজেক্ট...</span>
+            <p class="project-desc">এখানে আপনার পরবর্তী নতুন প্রজেক্টটি যোগ করা হবে।</p>
+            <span class="btn-link" style="background: #475569;">শীঘ্রই আসছে</span>
+        </div>
+
+    </div>
+
+</body>
+</html>
