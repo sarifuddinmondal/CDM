@@ -13,6 +13,10 @@
         .nav-icons { display: flex; gap: 20px; align-items: center; }
         .project-page-btn { cursor: pointer; font-size: 24px; color: var(--accent); text-decoration: none; }
         
+        /* Live Server Icon Style (New Add) */
+        .live-server-btn { cursor: pointer; font-size: 20px; color: #5bc0de; border: 1px solid #5bc0de; padding: 2px 8px; border-radius: 5px; transition: 0.3s; display: flex; align-items: center; gap: 5px; font-size: 14px; }
+        .live-server-btn:hover { background: #5bc0de; color: #000; }
+
         .main-container { display: flex; flex: 1; overflow: hidden; }
         #sidebar { width: 280px; background: var(--sidebar-bg); border-right: 1px solid #444; display: flex; flex-direction: column; }
         
@@ -40,6 +44,7 @@
     <div class="nav-icons">
         <div id="project-list-icon" class="project-page-btn" title="My Projects">📁</div>
         <span><strong>CDM</strong> Code Editor</span>
+        <div id="get-live-link" class="live-server-btn" title="Click to get Public Live Edit Link">🌐 Live Edit Link</div>
     </div>
     <div class="header-actions">
         <span id="save-status" style="display:none; color: var(--accent); margin-right: 15px;">✅ Saved</span>
@@ -77,7 +82,7 @@
         <span id="close-project-page" style="float:right; cursor:pointer; font-size: 24px;">&times;</span>
         <h2>My Projects (Supabase)</h2>
         <div id="project-display-list" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px;">
-            </div>
+        </div>
     </div>
 </div>
 
@@ -97,6 +102,7 @@
     const projectListIcon = document.getElementById('project-list-icon');
     const projectPage = document.getElementById('projectPage');
     const closeProjectPage = document.getElementById('close-project-page');
+    const getLiveLinkBtn = document.getElementById('get-live-link'); // নতুন বাটন আইডি
 
     let activeFilePath = "";
     let currentProjectName = "Default";
@@ -162,6 +168,25 @@
 
     saveBtn.onclick = saveFile;
 
+    // নতুন ফাংশন: পাবলিক লাইভ লিঙ্ক জেনারেট এবং কপি করা
+    getLiveLinkBtn.onclick = () => {
+        if (currentProjectName === "Default" && !activeFilePath) {
+            alert("প্রথমে একটি প্রোজেক্ট আপলোড বা ফাইল সিলেক্ট করুন!");
+            return;
+        }
+
+        // আপনার প্রোজেক্টের পাবলিক লিঙ্ক ফরম্যাট (Supabase অনুযায়ী)
+        const { data } = supabase.storage.from('CMD_Projects').getPublicUrl(currentProjectName);
+        const publicLink = data.publicUrl;
+
+        // লিঙ্কটি ক্লিপবোর্ডে কপি করা
+        navigator.clipboard.writeText(publicLink).then(() => {
+            alert("আপনার লাইভ এডিট সার্ভার লিঙ্ক কপি হয়েছে! এটি Gemini-কে দিন।\nLink: " + publicLink);
+        }).catch(err => {
+            console.error('Copy failed', err);
+        });
+    };
+
     // My Projects View
     projectListIcon.onclick = async () => {
         projectPage.style.display = 'block';
@@ -177,6 +202,11 @@
                     const card = document.createElement('div');
                     card.style = "background: #333; padding: 20px; border-radius: 8px; width: 150px; cursor: pointer; border: 1px solid var(--accent);";
                     card.innerHTML = `<strong>${folder.name}</strong><br><small>Supabase Project</small>`;
+                    card.onclick = () => {
+                        currentProjectName = folder.name;
+                        alert("Selected Project: " + folder.name);
+                        projectPage.style.display = 'none';
+                    };
                     displayList.appendChild(card);
                 }
             });
