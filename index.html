@@ -98,7 +98,8 @@
     import { supabase } from './config.js';
 
     // --- Gemini Configuration ---
-    const GEMINI_API_KEY = "YOUR_API_KEY_HERE"AIzaSyDwusvZee3IPdYJdfo1qoG9CZtUjCfcOR4"; // এখানে আপনার API Key বসান
+    // আপনার দেওয়া API Key এখানে নির্ভুলভাবে বসানো হয়েছে
+    const GEMINI_API_KEY = "AIzaSyDwusvZee3IPdYJdfo1qoG9CZtUjCfcOR4"; 
 
     const editor = document.getElementById('editor');
     const fileListDisplay = document.getElementById('file-list');
@@ -199,7 +200,7 @@
     // --- Gemini AI Logic ---
     geminiBtn.onclick = async () => {
         const code = editor.value;
-        if (!code) return alert("এডিটরে কোনো কোড নেই!");
+        if (!code) return alert("এডিটরে কোনো কোড নেই! একটি ফাইল ওপেন করুন।");
         
         geminiBtn.innerHTML = "🤖 Thinking...";
         
@@ -208,15 +209,20 @@
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: `এই কোডটি চেক করে কোনো ভুল থাকলে বলো অথবা উন্নত করার পরামর্শ দাও: \n\n ${code}` }] }]
+                    contents: [{ parts: [{ text: `তুমি একজন কোড এক্সপার্ট। নিচের কোডটি চেক করে কোনো ভুল থাকলে বলো অথবা উন্নত করার পরামর্শ দাও। উত্তরটি বাংলায় দাও: \n\n ${code}` }] }]
                 })
             });
             
             const data = await response.json();
-            const aiText = data.candidates[0].content.parts[0].text;
-            alert("Gemini Advice:\n" + aiText);
+            if (data.candidates && data.candidates[0].content) {
+                const aiText = data.candidates[0].content.parts[0].text;
+                alert("জেমিনির পরামর্শ:\n" + aiText);
+            } else {
+                throw new Error("Invalid Response");
+            }
         } catch (err) {
-            alert("Gemini Error: API Key ঠিক আছে তো?");
+            console.error(err);
+            alert("Gemini Error: API Key বা ইন্টারনেট কানেকশন চেক করুন।");
         } finally {
             geminiBtn.innerHTML = "🤖 Ask Gemini";
         }
@@ -236,7 +242,7 @@
                     card.innerHTML = `<strong>${folder.name}</strong><br><small>Folder</small>`;
                     card.onclick = () => {
                         currentProjectName = folder.name;
-                        alert("Selected: " + folder.name);
+                        alert("Selected Project: " + folder.name);
                         projectPage.style.display = 'none';
                     };
                     displayList.appendChild(card);
@@ -249,4 +255,3 @@
 </script>
 </body>
 </html>
-
