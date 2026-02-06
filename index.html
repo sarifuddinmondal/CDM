@@ -8,16 +8,13 @@
         :root { --bg: #1e1e1e; --sidebar-bg: #252526; --header-bg: #333; --accent: #3ecf8e; --text: #d4d4d4; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; background: var(--bg); color: var(--text); overflow: hidden; }
         
-        /* Header & Icon Style */
         header { background: var(--header-bg); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; }
         .nav-icons { display: flex; gap: 15px; align-items: center; }
         .project-page-btn { cursor: pointer; font-size: 24px; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
         
-        /* My Project Button */
         .my-project-nav { background: #444; color: white; padding: 5px 12px; border-radius: 4px; font-size: 13px; text-decoration: none; font-weight: bold; border: 1px solid var(--accent); transition: 0.3s; }
         .my-project-nav:hover { background: var(--accent); color: #000; }
 
-        /* Live Server & Gemini Button Style */
         .live-server-btn { cursor: pointer; font-size: 13px; color: #5bc0de; border: 1px solid #5bc0de; padding: 4px 10px; border-radius: 5px; transition: 0.3s; display: flex; align-items: center; gap: 5px; }
         .live-server-btn:hover { background: #5bc0de; color: #000; }
         
@@ -39,7 +36,6 @@
         #editor-container { flex: 1; display: flex; flex-direction: column; position: relative; }
         textarea { flex: 1; background: var(--bg); color: #9cdcfe; border: none; padding: 20px; font-family: 'Consolas', monospace; font-size: 16px; outline: none; resize: none; line-height: 1.5; }
         
-        /* Modal Style */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); }
         .modal-content { background: var(--sidebar-bg); margin: 15% auto; padding: 20px; width: 300px; border-radius: 8px; text-align: center; }
         .modal-content input { width: 90%; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #444; background: #1e1e1e; color: white; }
@@ -98,8 +94,7 @@
     import { supabase } from './config.js';
 
     // --- Gemini Configuration ---
-    // আপনার দেওয়া API Key এখানে নির্ভুলভাবে বসানো হয়েছে
-    const GEMINI_API_KEY = "AIzaSyDwusvZee3IPdYJdfo1qoG9CZtUjCfcOR4"; 
+    const GEMINI_API_KEY = "AIzaSyAMzCCnF68-sDlgk9FtMDwMYVcQEQgvWPo"; 
 
     const editor = document.getElementById('editor');
     const fileListDisplay = document.getElementById('file-list');
@@ -144,11 +139,9 @@
 
         for (const file of files) {
             const path = `${currentProjectName}/${file.webkitRelativePath}`;
-            
             const li = document.createElement('li');
             li.className = 'file-item';
             li.innerHTML = `<span>${file.webkitRelativePath}</span> <span style="color: var(--accent); font-size:10px;">🔗</span>`;
-            
             li.onclick = async () => {
                 document.querySelectorAll('.file-item').forEach(el => el.classList.remove('active-file'));
                 li.classList.add('active-file');
@@ -157,7 +150,6 @@
                 activeFilePath = path;
             };
             fileListDisplay.appendChild(li);
-
             const content = await file.text();
             await supabase.storage.from('CMD_Projects').upload(path, content, { upsert: true });
         }
@@ -201,28 +193,24 @@
     geminiBtn.onclick = async () => {
         const code = editor.value;
         if (!code) return alert("এডিটরে কোনো কোড নেই! একটি ফাইল ওপেন করুন।");
-        
         geminiBtn.innerHTML = "🤖 Thinking...";
-        
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: `তুমি একজন কোড এক্সপার্ট। নিচের কোডটি চেক করে কোনো ভুল থাকলে বলো অথবা উন্নত করার পরামর্শ দাও। উত্তরটি বাংলায় দাও: \n\n ${code}` }] }]
+                    contents: [{ parts: [{ text: `তুমি একজন কোড এক্সপার্ট। নিচের কোডটি চেক করে কোনো ভুল থাকলে বলো অথবা উন্নত করার পরামর্শ দাও। উত্তরটি সংক্ষেপে বাংলায় দাও: \n\n ${code}` }] }]
                 })
             });
-            
             const data = await response.json();
             if (data.candidates && data.candidates[0].content) {
                 const aiText = data.candidates[0].content.parts[0].text;
                 alert("জেমিনির পরামর্শ:\n" + aiText);
             } else {
-                throw new Error("Invalid Response");
+                throw new Error("Response Error");
             }
         } catch (err) {
-            console.error(err);
-            alert("Gemini Error: API Key বা ইন্টারনেট কানেকশন চেক করুন।");
+            alert("Gemini Error: API Key বা ইন্টারনেট চেক করুন।");
         } finally {
             geminiBtn.innerHTML = "🤖 Ask Gemini";
         }
@@ -250,7 +238,6 @@
             });
         }
     };
-
     closeProjectPage.onclick = () => projectPage.style.display = 'none';
 </script>
 </body>
